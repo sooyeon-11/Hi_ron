@@ -39,17 +39,10 @@
   <div class="hero__deco"><span></span><span></span><span></span></div>
   <div class="hero__inner">
     <div class="hero__avatar">
-      <div class="avatar-ring">
-        <!--
-          ⚠️ 프로필 사진 안내
-          Instagram이 외부 직접 임베드를 막고 있어, unavatar.io 서비스를 통해 가져옵니다.
-          이 서비스가 실패할 경우 아래 경로의 로컬 이미지를 사용합니다: img/profile.jpg
-          로컬 이미지 사용을 원하시면 img 폴더에 profile.jpg 를 넣어주세요.
-        -->
-        <img id="avatarImg"
-             src="https://unavatar.io/instagram/_hi_ron?fallback=https%3A%2F%2Funavatar.io%2F_hi_ron"
-             alt="하이론 프로필 사진"
-             onerror="this.onerror=null;this.src='img/profile.jpg';this.onerror=function(){this.src='https://ui-avatars.com/api/?name=Hi+ron&background=8b5cf6&color=fff&size=300&bold=true&rounded=true';}">
+      <div class="avatar-frame">
+        <img id="avatarImg" src="img/profile.png" alt="하이론 프로필 사진"
+             onerror="this.onerror=null;this.src='https://unavatar.io/instagram/_hi_ron';">
+        <span class="avatar-frame__tag">🍈 Hi_ron</span>
       </div>
     </div>
     <div class="hero__text">
