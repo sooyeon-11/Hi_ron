@@ -423,8 +423,9 @@ code{background:var(--purple-100);color:var(--purple-700);padding:2px 6px;border
 /* Timeline */
 .timeline{position:relative;padding-left:4px}
 .timeline::before{
-  content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;
+  content:"";position:absolute;left:11px;top:8px;bottom:8px;width:2px;
   background:linear-gradient(180deg,var(--purple-400),var(--purple-200));
+  transform:translateX(-1px);  /* width:2px의 정확한 중앙 정렬 */
 }
 .tl{display:flex;gap:18px;padding:14px 0;position:relative;align-items:center}
 .tl__dot{
