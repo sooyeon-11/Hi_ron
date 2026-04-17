@@ -103,19 +103,37 @@ function parseRSSXML(xmlStr){
       link:  e.querySelector('link')?.getAttribute('href') || '',
       pubDate: e.querySelector('published')?.textContent || '',
       guid:  e.querySelector('id')?.textContent || '',
-      thumbnail: e.querySelector('*|thumbnail')?.getAttribute('url') || '',
-      description: e.querySelector('*|description, media\\:description')?.textContent || '',
+      thumbnail: e.getElementsByTagNameNS('*','thumbnail')[0]?.getAttribute('url') || '',
+      description: e.getElementsByTagNameNS('*','description')[0]?.textContent || '',
     }));
   }
   const rssItems = [...doc.querySelectorAll('item')];
-  return rssItems.map(i => ({
-    title: i.querySelector('title')?.textContent || '',
-    link:  i.querySelector('link')?.textContent || '',
-    pubDate: i.querySelector('pubDate')?.textContent || '',
-    guid: i.querySelector('guid')?.textContent || '',
-    description: i.querySelector('description')?.textContent || '',
-    thumbnail: i.querySelector('enclosure')?.getAttribute('url') || '',
-  }));
+  return rssItems.map(i => {
+    // media:content 태그 찾기 (RSS.app Instagram에서 핵심 이미지 URL)
+    const mediaContent = i.getElementsByTagNameNS('*','content')[0];
+    const mediaThumb = mediaContent?.getAttribute('url') || '';
+    const encThumb = i.querySelector('enclosure')?.getAttribute('url') || '';
+    return {
+      title: i.querySelector('title')?.textContent || '',
+      link:  i.querySelector('link')?.textContent || '',
+      pubDate: i.querySelector('pubDate')?.textContent || '',
+      guid: i.querySelector('guid')?.textContent || '',
+      description: i.querySelector('description')?.textContent || '',
+      thumbnail: mediaThumb || encThumb || '',
+    };
+  });
+}
+
+/** Instagram CDN 이미지는 403 방지용으로 weserv.nl 프록시 경유 */
+function proxyImage(url) {
+  if (!url) return '';
+  // cdninstagram / fbcdn / tiktokcdn 등 hotlink 차단 CDN은 프록시 경유
+  if (/cdninstagram|fbcdn|tiktokcdn|akamaized|ibyteimg/.test(url)) {
+    // weserv는 http/https 모두 지원, 프로토콜 프리픽스 제거해서 전달
+    const clean = url.replace(/^https?:\/\//, '');
+    return `https://images.weserv.nl/?url=${encodeURIComponent(clean)}&w=600&output=jpg`;
+  }
+  return url;
 }
 
 async function fetchFromRsshub(pathname){
@@ -169,8 +187,10 @@ async function loadInstagram(){
       ? await fetchRSS(CFG.igRssUrl)
       : await fetchFromRsshub(`/instagram/user/${CFG.igUser}`);
     grid.innerHTML = items.slice(0,6).map(it => {
-      const thumb = it.thumbnail || it.enclosure?.link
-        || (it.description && (it.description.match(/<img[^>]+src="([^"]+)"/)||[])[1]) || '';
+      const raw = it.thumbnail
+        || (it.description && (it.description.match(/<img[^>]+src="([^"]+)"/)||[])[1])
+        || '';
+      const thumb = proxyImage(raw);
       return card({ href: it.link, thumb, title:(it.title||'').slice(0,120), date: it.pubDate });
     }).join('');
     if (!grid.children.length) throw new Error('empty');
@@ -187,8 +207,10 @@ async function loadTikTok(){
       ? await fetchRSS(CFG.ttRssUrl)
       : await fetchFromRsshub(`/tiktok/user/@${CFG.ttUser}`);
     grid.innerHTML = items.slice(0,8).map(it => {
-      const thumb = it.thumbnail || it.enclosure?.link
-        || (it.description && (it.description.match(/<img[^>]+src="([^"]+)"/)||[])[1]) || '';
+      const raw = it.thumbnail
+        || (it.description && (it.description.match(/<img[^>]+src="([^"]+)"/)||[])[1])
+        || '';
+      const thumb = proxyImage(raw);
       return card({ href: it.link, thumb, title:(it.title||'').slice(0,80), date: it.pubDate, play:true });
     }).join('');
     if (!grid.children.length) throw new Error('empty');
