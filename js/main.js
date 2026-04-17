@@ -32,27 +32,27 @@ const escHTML = (s='') => s.replace(/[&<>"']/g,(c)=>({ '&':'&amp;','<':'&lt;','>
 
 /* =============== FIXED NAV =============== */
 (function initNav(){
-  const nav    = $('#nav');
-  const toggle = $('#navToggle');
-  const links  = $$('.nav__menu a');
+  const nav   = $('#nav');
+  const links = $$('.nav__menu a');
 
-  // scroll shadow
   const onScroll = () => {
     nav.classList.toggle('is-scrolled', window.scrollY > 20);
-    // active section
     const pos = window.scrollY + 80;
     let current = 'top';
     $$('section[id], header[id]').forEach(sec => {
       if (sec.offsetTop <= pos) current = sec.id;
     });
-    links.forEach(a => a.classList.toggle('is-active', a.dataset.target === current));
+    links.forEach(a => {
+      const active = a.dataset.target === current;
+      a.classList.toggle('is-active', active);
+      // 활성 항목이 모바일 가로 스크롤 메뉴의 밖에 있으면 보이게
+      if (active && window.innerWidth <= 900 && a.scrollIntoView){
+        a.scrollIntoView({ inline:'center', block:'nearest', behavior:'smooth' });
+      }
+    });
   };
   window.addEventListener('scroll', onScroll, { passive:true });
   onScroll();
-
-  // mobile toggle
-  toggle.addEventListener('click', () => nav.classList.toggle('is-open'));
-  links.forEach(a => a.addEventListener('click', () => nav.classList.remove('is-open')));
 })();
 
 /* =============== GO TO TOP =============== */
