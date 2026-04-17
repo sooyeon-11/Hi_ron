@@ -55,6 +55,20 @@ const escHTML = (s='') => s.replace(/[&<>"']/g,(c)=>({ '&':'&amp;','<':'&lt;','>
   links.forEach(a => a.addEventListener('click', () => nav.classList.remove('is-open')));
 })();
 
+/* =============== GO TO TOP =============== */
+(function initGoTop(){
+  const btn = $('#gotop');
+  if (!btn) return;
+  const onScroll = () => {
+    btn.classList.toggle('is-visible', window.scrollY > 400);
+  };
+  window.addEventListener('scroll', onScroll, { passive:true });
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+  onScroll();
+})();
+
 /* =============== RSS FETCH =============== */
 /** 여러 CORS 프록시를 순차 시도해 RSS/Atom 피드 파싱 */
 async function fetchRSS(rssUrl, timeout = 18000) {
