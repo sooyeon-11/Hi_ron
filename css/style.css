@@ -40,13 +40,18 @@
 
 /* ===== Reset ===== */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:var(--nav-h)}
+html{
+  scroll-behavior:smooth;scroll-padding-top:var(--nav-h);
+  background:#4c1d95;  /* 최상단 오버스크롤시 hero 보라와 매끄럽게 연결 */
+}
 body{
   font-family:'NanumSquareNeo',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   color:var(--text);background:var(--bg);line-height:1.7;
   -webkit-font-smoothing:antialiased;padding-top:var(--nav-h);
   font-weight:400;
   letter-spacing:-.01em;
+  overscroll-behavior:none;  /* iOS 바운스로 배경 노출 방지 */
+  margin:0;
 }
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%;height:auto}
@@ -59,12 +64,12 @@ code{background:var(--purple-100);color:var(--purple-700);padding:2px 6px;border
 .nav{
   position:fixed;top:0;left:0;right:0;z-index:100;
   height:var(--nav-h);
-  background:rgba(255,255,255,.85);
+  background:#fff;
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border-bottom:1px solid rgba(167,139,250,.2);
   transition:background .3s ease, box-shadow .3s ease;
 }
-.nav.is-scrolled{background:rgba(255,255,255,.95);box-shadow:0 4px 20px rgba(124,58,237,.08)}
+.nav.is-scrolled{box-shadow:0 4px 20px rgba(124,58,237,.08)}
 .nav__inner{
   max-width:1200px;height:100%;margin:0 auto;padding:0 clamp(14px,4vw,24px);
   display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -98,6 +103,7 @@ code{background:var(--purple-100);color:var(--purple-700);padding:2px 6px;border
   position:relative;min-height:540px;
   padding:clamp(60px,10vw,90px) clamp(16px,4vw,24px) clamp(70px,10vw,110px);
   overflow:hidden;color:#fff;
+  margin-top:-1px;  /* nav과 공백 방지 */
 }
 .hero__bg{
   position:absolute;inset:0;z-index:0;
@@ -180,13 +186,18 @@ code{background:var(--purple-100);color:var(--purple-700);padding:2px 6px;border
   color:#e0c3fc;
 }
 .hero__name{
-  font-size:clamp(24px,5.2vw,42px);font-weight:800;line-height:1.2;margin-bottom:14px;
+  font-size:clamp(24px,5.2vw,42px);font-weight:800;line-height:1.2;margin-bottom:10px;
   text-shadow:0 6px 30px rgba(0,0,0,.3);
   word-break:keep-all;letter-spacing:-.02em;
 }
 .hero__name span{
   font-family:'NanumSquareNeo',sans-serif;font-weight:600;opacity:.85;
-  font-size:.58em;margin-left:4px;
+  font-size:.58em;margin-left:6px;
+}
+.hero__sub{
+  font-weight:700;font-size:clamp(11px,2.5vw,13px);
+  letter-spacing:.25em;opacity:.75;color:#e0c3fc;
+  margin-bottom:24px;
 }
 .hero__tag{
   font-size:clamp(13px,3.4vw,16px);opacity:.95;margin-bottom:26px;max-width:540px;
@@ -194,15 +205,16 @@ code{background:var(--purple-100);color:var(--purple-700);padding:2px 6px;border
 }
 .hero__meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 20px;margin-bottom:26px;max-width:560px}
 .hero__meta li{
-  display:flex;gap:10px;font-size:clamp(12px,3vw,14px);padding:8px 0 8px 12px;
+  display:flex;align-items:center;gap:10px;
+  font-size:clamp(12px,3vw,14px);padding:10px 0 10px 14px;
   border-bottom:1px solid rgba(255,255,255,.2);
   word-break:keep-all;
   position:relative;
 }
 .hero__meta li::before{
-  content:"";position:absolute;left:2px;top:50%;transform:translateY(-50%);
-  width:3px;height:3px;border-radius:50%;background:#e0c3fc;
-  box-shadow:0 0 8px rgba(224,195,252,.6);
+  content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:4px;height:4px;border-radius:50%;background:#e0c3fc;
+  box-shadow:0 0 10px rgba(224,195,252,.7);
 }
 .hero__meta strong{
   min-width:48px;opacity:.75;color:#e0c3fc;
@@ -506,9 +518,12 @@ code{background:var(--purple-100);color:var(--purple-700);padding:2px 6px;border
 
   /* Hero → column */
   .hero__inner{grid-template-columns:1fr;text-align:center;gap:28px}
-  .hero__tag{margin-left:auto;margin-right:auto}
-  .hero__meta{margin-left:auto;margin-right:auto;text-align:left}
-  .hero__cta{justify-content:center}
+  .hero__text{display:flex;flex-direction:column;align-items:center}
+  .hero__name{text-align:center;width:100%}
+  .hero__sub{text-align:center}
+  .hero__tag{margin-left:auto;margin-right:auto;text-align:center}
+  .hero__meta{margin-left:auto;margin-right:auto;text-align:left;width:100%;max-width:360px}
+  .hero__cta{margin:0 auto;width:100%;max-width:420px}
   .avatar-frame{width:clamp(200px,55vw,260px);height:clamp(240px,65vw,310px)}
   .avatar-frame__tag{font-size:clamp(11px,2.8vw,13px);padding:6px 14px}
 
