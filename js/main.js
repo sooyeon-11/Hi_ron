@@ -11,11 +11,13 @@ const CFG = {
   igUser: '_hi_ron',
   ttUser: '_hi_ron',
 
-  // ★ RSS.app으로 생성한 피드 URL (여기만 바꾸면 IG/TikTok 자동 갱신됨)
+  // YouTube Data API v3 키 (공개 데이터 전용)
+  ytApiKey: 'AIzaSyBrtU1vqbXutUpQ8UgINPjfcwAEzIDY_k4',
+
+  // RSS.app 피드 (트라이얼 만료 시 fallback)
   igRssUrl: 'https://rss.app/feeds/p8CTG1jfNagXzbZ0.xml',
   ttRssUrl: 'https://rss.app/feeds/JAjYlz5tbk87PLQk.xml',
 
-  // RSSHub 백업 (RSS.app URL이 비어있을 때만 사용)
   rsshubHosts: [
     'https://rsshub.app',
     'https://rss.shab.fun',
@@ -180,6 +182,39 @@ function fallback(grid, label, url){
 /* =============== LOADERS =============== */
 async function loadYouTube(){
   const grid = $('#ytGrid');
+  // YouTube 채널의 업로드 재생목록 ID = 채널 ID의 'UC' → 'UU'
+  const uploadsId = 'UU' + CFG.ytChannelId.slice(2);
+
+  // 1순위: YouTube Data API v3 (공식, 안정적)
+  if (CFG.ytApiKey){
+    try{
+      const url = `https://www.googleapis.com/youtube/v3/playlistItems`
+                + `?part=snippet&maxResults=6&playlistId=${uploadsId}&key=${CFG.ytApiKey}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const items = data.items || [];
+      if (!items.length) throw new Error('empty');
+      grid.innerHTML = items.map(it => {
+        const sn = it.snippet;
+        const vid = sn.resourceId?.videoId;
+        const thumb = sn.thumbnails?.high?.url
+                   || sn.thumbnails?.medium?.url
+                   || sn.thumbnails?.default?.url
+                   || (vid ? `https://i.ytimg.com/vi/${vid}/hqdefault.jpg` : '');
+        return card({
+          href: `https://www.youtube.com/watch?v=${vid}`,
+          thumb,
+          title: sn.title,
+          date: sn.publishedAt,
+          play: true,
+        });
+      }).join('');
+      return;
+    }catch(e){ console.warn('[YT API]', e); /* fall through to RSS */ }
+  }
+
+  // 2순위: 공식 RSS (일부 채널은 차단됨)
   try{
     const items = await fetchRSS(`https://www.youtube.com/feeds/videos.xml?channel_id=${CFG.ytChannelId}`);
     if (!items?.length) throw new Error('empty');
@@ -189,7 +224,7 @@ async function loadYouTube(){
       return card({ href: it.link, thumb, title: it.title, date: it.pubDate, play:true });
     }).join('');
   }catch(e){
-    console.warn('[YT]', e);
+    console.warn('[YT RSS]', e);
     fallback(grid, 'YouTube', `https://www.youtube.com/@${CFG.igUser}`);
   }
 }
